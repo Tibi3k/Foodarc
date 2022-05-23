@@ -1,0 +1,55 @@
+.container{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    align-self: center;
+    padding: 5px;
+}
+
+.mat-card{
+    width: 100%;
+    max-width: 1200px;
+    cursor: pointer;
+    margin: 10px;
+    background-color:bisque;
+}
+
+.content{
+    display: flex;
+}
+
+img{
+    max-width: 500px;
+}
+
+.restaurant-data{
+    display: flex;
+    flex-direction: column;
+    margin-left: 10px;
+}
+
+.foods{
+    margin-top: 10px;
+}
+
+.food-name{
+    max-width: 200px;
+    width: 100%;
+    margin-right: 20px;
+}
+
+.edit-button{
+    background-color: #FFC107;
+    margin-right: 15px;
+}
+
+.food-buttons{
+    display: flex;
+    padding-bottom: 10px;
+}
+
+.spacer{
+    height: 100%;
+}

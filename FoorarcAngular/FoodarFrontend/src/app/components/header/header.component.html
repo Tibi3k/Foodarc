@@ -1,0 +1,28 @@
+<mat-toolbar color='primary'>
+    <div class="content">
+        <span>
+        <a routerLink="/">Foodarc</a>
+        </span>
+        <ul>
+        <li *ngIf="userIsAuthenticated">
+            <a mat-button routerLink="/profile" routerLinkActive="mat-accent">Profile</a>
+        </li>
+        </ul>
+        <span class="spacer"></span>
+        <ul>
+        <li *ngIf="this.currentUser != null && this.userRole == 'owner'">
+            <a mat-button [routerLink]="['/restaurant', this.currentUser?.idTokenClaims?.oid]" routerLinkActive="mat-accent">My restaurant</a>    
+        </li>
+        <li *ngIf="this.currentUser != null && this.userRole == 'owner'">
+            <a mat-button routerLink="/restaurantorders" routerLinkActive="mat-accent">Orders</a>    
+        </li>
+        <li *ngIf="this.currentUser != null && this.userRole == 'owner'">
+            <a mat-button routerLink="/createfood" routerLinkActive="mat-accent">Add food</a>    
+        </li>
+        <li>
+            <button mat-button (click)="onLoginClicked()">{{this.currentUser == null ? "Log In" : "Log Out"}}</button>
+        </li>
+        </ul>
+    </div>
+  </mat-toolbar>
+  

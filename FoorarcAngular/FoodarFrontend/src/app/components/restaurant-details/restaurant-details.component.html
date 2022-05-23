@@ -1,0 +1,47 @@
+<div class="container">
+    <mat-card>
+        <mat-card-content *ngIf="this.restaurant != null">
+            <div class="content">
+                <img [src]="this.restaurant?.imagePath">
+                <div class="restaurant-data">
+                    <mat-card-title>
+                        {{this.restaurant?.name}}
+                    </mat-card-title>
+                    <mat-card-subtitle>
+                        {{this.restaurant?.address}}
+                    </mat-card-subtitle>
+                        {{this.restaurant?.description}}
+                </div>
+            </div>
+            <div class="foods">
+                <mat-expansion-panel *ngFor="let food of this.restaurant.availableFoods">
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            <div class="food-name">
+                                {{food.name}}
+                            </div>
+                            <div>
+                                {{food.price}} ft
+                            </div>
+                        </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <div class="content">
+                        <img [src]="this.food.imagePath">
+                        <div class="restaurant-data">
+                            <h1>{{food.name}}</h1>
+                            <h1>{{food.price}}ft</h1>
+                            <span>{{food.description}}</span>
+                            <i>Calories: {{food.calories}} kcal</i>
+                            <div class="spacer"></div>
+                            <div class="food-buttons">
+                                <button mat-raised-button color="primary" *ngIf="this.role != '' && this.role == 'Customer'">Order</button>
+                                <button mat-raised-button color="" class="edit-button" *ngIf="this.role != '' && this.role == 'owner'">Edit</button>
+                                <button mat-raised-button color="warn" *ngIf="this.role != '' && this.role == 'owner'">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </mat-expansion-panel>
+            </div>
+        </mat-card-content>
+    </mat-card>
+</div>

@@ -1,0 +1,20 @@
+<div class="container">
+    <mat-card *ngFor="let restaurant of restaurants" [routerLink]="['/restaurant', restaurant.id]">
+        <mat-card-content>
+            <div class="content">
+                <img [src]="restaurant.imagePath">
+                <div class="restaurant-data">
+                    <mat-card-title>
+                        {{restaurant.name}}
+                    </mat-card-title>
+                    <mat-card-subtitle>
+                        {{restaurant.address}}
+                    </mat-card-subtitle>
+                    <mat-card-content>
+                        {{restaurant.description}}
+                    </mat-card-content>
+                </div>
+            </div>
+        </mat-card-content>
+    </mat-card>
+</div>

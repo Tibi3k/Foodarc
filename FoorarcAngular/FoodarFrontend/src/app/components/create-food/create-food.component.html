@@ -1,0 +1,115 @@
+<div class="box">
+    <mat-card>
+        <form [formGroup]="form" (submit)="onSaveRestaurant()" class="main-form">
+          <mat-form-field >
+            <mat-label>Name</mat-label>
+            <input
+              matInput
+              type="text"
+              formControlName="name"
+              placeholder="Name of your restaurant"
+            />
+            <mat-error *ngIf="form.get('name')!.invalid"
+              >Please add a name!</mat-error
+            >
+          </mat-form-field>
+          <mat-form-field class="form-element">
+              <mat-label>Description</mat-label>
+            <textarea
+              matInput
+              rows="4"
+              formControlName="description"
+              placeholder="Describe  your restaurant!"
+            ></textarea>
+            <mat-error *ngIf="form.get('description')!.invalid"
+              >Please add the description!</mat-error
+            >
+          </mat-form-field>
+    
+          <mat-form-field class="form-element">
+              <mat-label>Zip code</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="zipcode"
+              placeholder="Zip code"
+            />
+            <mat-error *ngIf="form.get('zipcode')!.invalid"
+              >Please add the price!</mat-error
+            >
+          </mat-form-field>
+
+          <mat-form-field class="form-element">
+            <mat-label>Country</mat-label>
+          <input
+            matInput
+            type="text"
+            formControlName="country"
+            placeholder="Country"
+          />
+          <mat-error *ngIf="form.get('country')!.invalid"
+            >Please add the city!</mat-error
+          >
+        </mat-form-field>
+          <mat-form-field class="form-element">
+              <mat-label>City</mat-label>
+            <input
+              matInput
+              type="text"
+              formControlName="city"
+              placeholder="City"
+            />
+            <mat-error *ngIf="form.get('city')!.invalid"
+              >Please add the city!</mat-error
+            >
+          </mat-form-field>
+    
+          <mat-form-field class="form-element">
+            <mat-label>Address</mat-label>
+          <input
+            matInput
+            type="text"
+            formControlName="address"
+            placeholder="Address"
+          />
+          <mat-error *ngIf="form.get('address')!.invalid"
+            >Please add the city!</mat-error
+          >
+        </mat-form-field>
+        <div class="image-preview" *ngIf="imagePreview !== '' && imagePreview && form.get('image')!.valid">
+          <img [src]="imagePreview" [alt]="form.value.title" />
+        </div>
+          <button
+            mat-raised-button
+            color="accent"
+            class="imageButton btn"
+            type="button"
+            (click)="filePicker.click()"
+          >Upload picture
+          </button>
+    
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            class="btn btn-add"
+          >
+            {{ this.mode == 'create' ? "Add product" : "Confirm edit" }}
+          </button>
+          <button
+          mat-raised-button
+          color="warn"
+          (click)="onCancelClicked()"
+          class="btn btn-add"
+        >
+          Cancel
+        </button>
+          <input
+          class="invisible"
+          type="file"
+          #filePicker
+          (change)="onImagePicked($event)"
+        />
+        </form>
+      </mat-card>
+    </div>
