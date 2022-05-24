@@ -14,6 +14,16 @@ public class CreateRestaurant
 
     [JsonProperty(PropertyName = "description")]
     public string Description { get; set; }
+
     [JsonProperty(PropertyName = "imagePath")]
     public string ImagePath { get; set; }
+
+    [JsonProperty(PropertyName = "zipCode")]
+    public int ZipCode { get; set; }
+
+    [JsonProperty(PropertyName = "city")]
+    public string City { get; set; }
+
+    [JsonProperty(PropertyName = "country")]
+    public string Country { get; set; }
 }

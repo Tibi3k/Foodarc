@@ -7,9 +7,11 @@ import { RestaurantDetailsComponent } from './components/restaurant-details/rest
 
 const routes: Routes = [
   {path: '', component: ListRestaurantsComponent},
-  {path: 'restaurant/:id', component: RestaurantDetailsComponent},
+  {path: 'restaurant/:restaurantId', component: RestaurantDetailsComponent},
   {path: 'createrestaurant', component: CreateRestaurantComponent},
-  {path: 'createfood', component: CreateFoodComponent}
+  {path: 'editrestaurant/:restaurantId', component: CreateRestaurantComponent},
+  {path: 'createfood', component: CreateFoodComponent},
+  {path: 'editfood/:foodId', component: CreateFoodComponent}
 ];
 
 @NgModule({

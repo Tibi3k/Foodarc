@@ -5,6 +5,9 @@ export interface Restaurant{
     ownerId: string
     name: string,
     address: string,
+    city: string,
+    country: string,
+    zipCode: number
     availableFoods: Food[],
     description: string,
     imagePath: string
@@ -14,5 +17,8 @@ export interface CreateRestaurant{
     name: string,
     address: string,
     description: string,
-    imagePath: string
+    imagePath: string,
+    city: string,
+    country: string,
+    zipCode: number
 }

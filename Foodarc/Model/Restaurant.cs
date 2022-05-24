@@ -8,9 +8,18 @@ public class Restaurant
     public string Id { get; set; }
 
     [JsonProperty(PropertyName = "availableFoods")]
-    public List<Food> Foods { get; set; }
+    public List<Food> AvailableFoods { get; set; }
 
-    [JsonProperty(PropertyName ="address")]
+    [JsonProperty(PropertyName ="zipCode")]
+    public int ZipCode { get; set; }
+
+    [JsonProperty(PropertyName = "city")]
+    public string City { get; set; }
+
+    [JsonProperty(PropertyName = "country")]
+    public string Country { get; set; }
+
+    [JsonProperty(PropertyName = "address")]
     public string Address { get; set; }
 
     [JsonProperty(PropertyName = "name")]

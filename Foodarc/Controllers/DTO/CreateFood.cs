@@ -17,5 +17,8 @@ public class CreateFood
     [JsonProperty(PropertyName = "calories")]
     public int Calories { get; set; }
 
+    [JsonProperty(PropertyName = "imagePath")]
+    public string ImagePath { get; set; }
+
 }
 

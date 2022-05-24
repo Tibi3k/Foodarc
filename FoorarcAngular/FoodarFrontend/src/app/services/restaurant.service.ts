@@ -17,8 +17,8 @@ export class RestaurantService {
         return this.httpClient.post<string>(environment.backendUrl + 'api/restaurant', restaurant)
     }
 
-    GetRestaurantById(){
-        return this.httpClient.get<Restaurant>(environment.backendUrl + 'api/restaurant/single')
+    GetRestaurantById(restaurantId: string){
+        return this.httpClient.get<Restaurant | null>(environment.backendUrl + `api/restaurant/${restaurantId}`)
     }
     
     GetAllRestaurants(){
@@ -31,5 +31,21 @@ export class RestaurantService {
 
     AddFoodToRestaurant(food: CreateFood){
         return this.httpClient.post<string>(environment.backendUrl + 'api/restaurant/food', food)
+    }
+
+    UpdateFood(food: Food){
+        return this.httpClient.put<string>(environment.backendUrl + 'api/restaurant/food', food)
+    }
+
+    UpdateRestaurant(restaurant: Restaurant){
+        return this.httpClient.put<string>(environment.backendUrl + 'api/restaurant', restaurant)
+    }
+
+    DeleteFood(foodId: string){
+        return this.httpClient.delete<string>(environment.backendUrl + `api/restaurant/food/${foodId}`)
+    }
+    
+    DeleteRestaurant(){
+        return this.httpClient.delete<string>(environment.backendUrl + 'api/restaurant')
     }
 }

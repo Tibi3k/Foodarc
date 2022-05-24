@@ -23,7 +23,10 @@ public class RestaurantService : IRestaurantService
             Id = id,
             OwnerId = id,
             Address = restaurant.Address,
-            Foods = new List<Food>(),
+            ZipCode = restaurant.ZipCode,
+            City = restaurant.City,
+            Country = restaurant.Country,
+            AvailableFoods = new List<Food>(),
             Name = restaurant.Name,
             Description = restaurant.Description,
             ImagePath = restaurant.ImagePath
@@ -75,7 +78,7 @@ public class RestaurantService : IRestaurantService
         try
         {
             ItemResponse<Restaurant> response = await this.restaurantContainer.ReadItemAsync<Restaurant>(restaurantId, new PartitionKey(restaurantId));
-            return response.Resource.Foods.Where(f => f.Id == foodId).SingleOrDefault();
+            return response.Resource.AvailableFoods.Where(f => f.Id == foodId).SingleOrDefault();
         }
         catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
@@ -83,24 +86,19 @@ public class RestaurantService : IRestaurantService
         }
     }
 
-    //public async Task<IEnumerable<Item>> GetItemsAsync(string queryString)
-    //{
-    //    var query = this._container.GetItemQueryIterator<Item>(new QueryDefinition(queryString));
-    //    List<Item> results = new List<Item>();
-    //    while (query.HasMoreResults)
-    //    {
-    //        var response = await query.ReadNextAsync();
-
-    //        results.AddRange(response.ToList());
-    //    }
-
-    //    return results;
-    //}
-
     public async Task UpdateItemAsync(string id, Restaurant item)
     {
         await this.restaurantContainer.UpsertItemAsync<Restaurant>(item, new PartitionKey(id));
     }
+
+    public async Task UpdateFoodAsync(string id, Food food)
+    {
+        var restaurant = await this.GetRestaurantById(id);
+        var index = restaurant.AvailableFoods.FindIndex(f => f.Id == food.Id);
+        restaurant.AvailableFoods[index] = food;
+        await this.restaurantContainer.UpsertItemAsync(restaurant, new PartitionKey(restaurant.Id));
+    }
+
 
     public async Task AddFoodToRestaurant(string id, CreateFood food) {
         var restaurant = await this.GetRestaurantById(id);
@@ -110,16 +108,17 @@ public class RestaurantService : IRestaurantService
             Description = food.Description,
             Calories = food.Calories,
             Name = food.Name,
-            Price = food.Price
+            Price = food.Price,
+            ImagePath = food.ImagePath
         };
-        restaurant.Foods.Add(foodToAdd);
+        restaurant.AvailableFoods.Add(foodToAdd);
         await this.restaurantContainer.UpsertItemAsync(restaurant, new PartitionKey(restaurant.Id));
     }
 
-    public async Task DeleteFoodFromRestaurant(string id, Food food)
+    public async Task DeleteFoodFromRestaurant(string id, string foodId)
     {
         var restaurant = await this.GetRestaurantById(id);
-        restaurant.Foods.Remove(food);
+        restaurant.AvailableFoods = restaurant.AvailableFoods.Where(f => f.Id != foodId).ToList();
         await this.restaurantContainer.UpsertItemAsync(restaurant, new PartitionKey(restaurant.Id));
     }
 }

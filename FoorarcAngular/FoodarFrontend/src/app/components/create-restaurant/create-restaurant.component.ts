@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { CreateRestaurant, Restaurant } from 'src/app/model/restaurant.model';
 import { AuthService } from 'src/app/services/auth.service';
 import { ImageService } from 'src/app/services/image.service';
@@ -22,85 +22,102 @@ export class CreateRestaurantComponent implements OnInit {
   ) {}
 
   mode = 'create'
-  categories: Array<any> = ['asdf', 'dfasdf', 'asdfasdf']
-  productId: Number | null = null
+  restaurantId: string | null = null
   imagePreview = ""
-  
+  oldRestaurant: Restaurant | null = null
+
   ngOnInit() {
-     this.createForm()
-    // this.backendService.getAllCategories()
-    //   .subscribe(categories => this.categories = categories)
-    // this.route.paramMap.subscribe((paramMap: ParamMap) => {
-    //   if (paramMap.has('productId')) {
-    //     this.productId =  Number.parseInt(paramMap.get('productId')!);
-    //     this.mode = 'edit'
-    //     this.backendService.getProductById(this.productId)
-    //       .subscribe(product => {
-    //         this.loadItemToForm(product)
-    //       })
-    //   }
-    // })
+    this.createForm()
+    this.route.paramMap.subscribe((paramMap: ParamMap) => {
+      if (paramMap.has('restaurantId')) {
+        this.restaurantId =  paramMap.get('restaurantId')!;
+        this.mode = 'edit'
+        this.restaurantService.GetRestaurantById(this.restaurantId)
+          .subscribe(restaurant => {
+            this.oldRestaurant = restaurant
+            this.loadItemToForm(restaurant!)
+          })
+      }
+    })
   }
 
   onSaveRestaurant(){
-    let restaurant = this.getNewRestaurantFromForm()
-    this.imageService.uploadImage(this.form.value.image, 
-      (responseData: any) => {
-        console.log('res', responseData)
-        restaurant.imagePath = responseData.data.url
-        console.log('rd.data.url', responseData.data.url)
-        console.log(' restaurant.imagePath',  restaurant.imagePath)
-        console.log('restaurant', restaurant)
-        this.restaurantService.CreateRestaurant(restaurant)
-        .subscribe(result => {
-          console.log('added')
-          this.router.navigate([''])
-        })
-      },
-      () => {}
+    if(this.mode == 'create'){
+      let restaurant = this.getNewRestaurantFromForm()
+      this.imageService.uploadImage(this.form.value.image, 
+        (responseData: any) => {
+          restaurant.imagePath = responseData.data.url
+          this.restaurantService.CreateRestaurant(restaurant)
+          .subscribe(result => {
+            console.log('added')
+            this.router.navigate([''])
+          })
+        },
+        () => {}
       )
-    // if(this.mode == 'edit'){
-    //   let product = this.getExistingProductFromForm()
-    //   this.backendService.editProduct(product).subscribe(res => {
-    //     this.router.navigate([''])
-    //   })
-    // } else {
-    //   let product = this.getNewProductFromForm()
-    //   this.backendService.createProduct(product).subscribe(res => {
-    //     this.router.navigate([''])
-    //   })
-    // }
+    } else {
+      //update
+      let restaurant = this.getExistingRestaurantFromForm()
+      if(restaurant.imagePath != this.oldRestaurant?.imagePath){
+        this.imageService.uploadImage(this.form.value.image,
+          (result: any) => {
+            restaurant.imagePath = result.data.url
+            this.restaurantService.UpdateRestaurant(restaurant)
+              .subscribe(result => {
+                this.router.navigate([''])
+              })
+          },
+          () => {}
+          )
+      } else {
+        console.log('ressssssss', restaurant)
+        this.restaurantService.UpdateRestaurant(restaurant)
+          .subscribe(result => {
+            this.router.navigate([''])
+          })
+      }
+    }
   }
 
   getNewRestaurantFromForm(): CreateRestaurant{
     return {
       name: this.form.value.name,
       description: this.form.value.description,
-      address: `${this.form.value.country} ${this.form.value.zipcode} ${this.form.value.city} ${this.form.value.address}`,
-      imagePath: ''
+      address: this.form.value.address,
+      imagePath: '',
+      country: this.form.value.country,
+      zipCode: this.form.value.zipcode,
+      city: this.form.value.city
     }
   }
 
-  // getExistingProductFromForm(): Product{
-  //   return {
-  //     id: this.productId!,
-  //     name: this.form.value.name,
-  //     description: this.form.value.description,
-  //     price: this.form.value.price,
-  //     quantity: this.form.value.quantity,
-  //     category: this.form.value.category
-  //   }
-  // }
+  getExistingRestaurantFromForm(): Restaurant{
+    return {
+      id: this.restaurantId!,
+      name: this.form.value.name,
+      description: this.form.value.description,
+      address: this.form.value.address,
+      imagePath: this.form.value.image,
+      ownerId: this.restaurantId!,
+      availableFoods: this.oldRestaurant!.availableFoods,
+      country: this.form.value.country,
+      zipCode: this.form.value.zipcode,
+      city: this.form.value.city
+    }
+  }
 
-  // loadItemToForm(product: Product){
-  //   this.form.setValue({
-  //     name: product.name,
-  //     description: product.description ?? '',
-  //     price: product.price,
-  //     quantity: product.quantity,
-  //     category: product.category,
-  //   });
-  // }
+  loadItemToForm(restaurant: Restaurant){
+    this.imagePreview = restaurant.imagePath
+    this.form.setValue({
+      name: restaurant.name,
+      description: restaurant.description ?? '',
+      address: restaurant.address,
+      image: restaurant.imagePath,
+      country: restaurant.country,
+      zipcode: restaurant.zipCode,
+      city: restaurant.city
+    });
+  }
 
   createForm(){
     this.form = new FormGroup({

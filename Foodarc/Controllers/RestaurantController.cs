@@ -29,11 +29,10 @@ public class RestaurantController : ControllerBase
     }
 
     [Authorize("Authenticated")]
-    [HttpGet("single", Name = "GetRestaurantById")]
-    public async Task<ActionResult<IEnumerable<Restaurant>>> GetRestaurantById()
+    [HttpGet("{restaurantId}", Name = "GetRestaurantById")]
+    public async Task<ActionResult<Restaurant?>> GetRestaurantById(string restaurantId)
     {
-        var id = getUserIdFromClaim(User);
-        var result = await this.restaurantService.GetRestaurantById(id);
+        var result = await this.restaurantService.GetRestaurantById(restaurantId);
         return Ok(result);
     }
 
@@ -64,6 +63,14 @@ public class RestaurantController : ControllerBase
     }
 
     [Authorize("Owner")]
+    [HttpDelete("food/{foodId}")]
+    public async Task<ActionResult> DeleteFood(string foodId) {
+        var id = getUserIdFromClaim(User);
+        await this.restaurantService.DeleteFoodFromRestaurant(id, foodId);
+        return NoContent();
+    }
+
+    [Authorize("Owner")]
     [HttpPost("food")]
     public async Task<ActionResult> AddFood([FromBody] CreateFood food) {
         var id = getUserIdFromClaim(User);
@@ -78,7 +85,15 @@ public class RestaurantController : ControllerBase
         await this.restaurantService.UpdateItemAsync(id, restaurant);
         return Ok();
     }
-    
+
+    [Authorize("Owner")]
+    [HttpPut("food")]
+    public async Task<ActionResult> UpdateFood([FromBody] Food food) {
+        var id = getUserIdFromClaim(User);
+        await this.restaurantService.UpdateFoodAsync(id, food);
+        return Ok();
+    }
+
     private string getUserIdFromClaim(ClaimsPrincipal principal)
     {
         return principal.Claims

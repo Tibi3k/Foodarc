@@ -8,7 +8,7 @@
                         {{restaurant.name}}
                     </mat-card-title>
                     <mat-card-subtitle>
-                        {{restaurant.address}}
+                        {{this.restaurant?.country}} {{this.restaurant?.zipCode}} {{this.restaurant?.city}} {{this.restaurant?.address}}
                     </mat-card-subtitle>
                     <mat-card-content>
                         {{restaurant.description}}

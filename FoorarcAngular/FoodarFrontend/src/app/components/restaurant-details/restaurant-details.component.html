@@ -1,5 +1,10 @@
 <div class="container">
-    <mat-card>
+    <mat-spinner *ngIf="this.loadState == 'loading'"></mat-spinner>
+    <button mat-raised-button color="primary" class="new-button"
+        routerLink="/createrestaurant" 
+        *ngIf="this.loadState == 'loaded' && this.restaurant == null">
+        Create new restaurant</button>
+    <mat-card *ngIf="this.loadState == 'loaded' && this.restaurant != null">
         <mat-card-content *ngIf="this.restaurant != null">
             <div class="content">
                 <img [src]="this.restaurant?.imagePath">
@@ -8,9 +13,14 @@
                         {{this.restaurant?.name}}
                     </mat-card-title>
                     <mat-card-subtitle>
-                        {{this.restaurant?.address}}
+                        {{this.restaurant?.country}} {{this.restaurant?.zipCode}} {{this.restaurant?.city}} {{this.restaurant?.address}}
                     </mat-card-subtitle>
                         {{this.restaurant?.description}}
+                    <button mat-raised-button color="" class="edit-button" 
+                        *ngIf="this.role != '' && this.role == 'owner'"
+                        [routerLink]="['/editrestaurant', this.restaurant.id]"
+                        >Edit</button>
+                    <button mat-raised-button color="warn" *ngIf="this.role != '' && this.role == 'owner'" (click)="this.onDeleteRestaurant()">Delete</button>
                 </div>
             </div>
             <div class="foods">
@@ -26,7 +36,7 @@
                         </mat-panel-title>
                     </mat-expansion-panel-header>
                     <div class="content">
-                        <img [src]="this.food.imagePath">
+                        <img [src]="food.imagePath">
                         <div class="restaurant-data">
                             <h1>{{food.name}}</h1>
                             <h1>{{food.price}}ft</h1>
@@ -35,8 +45,11 @@
                             <div class="spacer"></div>
                             <div class="food-buttons">
                                 <button mat-raised-button color="primary" *ngIf="this.role != '' && this.role == 'Customer'">Order</button>
-                                <button mat-raised-button color="" class="edit-button" *ngIf="this.role != '' && this.role == 'owner'">Edit</button>
-                                <button mat-raised-button color="warn" *ngIf="this.role != '' && this.role == 'owner'">Delete</button>
+                                <button mat-raised-button color="" class="edit-button" 
+                                    *ngIf="this.role != '' && this.role == 'owner'"
+                                    [routerLink]="['/editfood', food.id]"
+                                    >Edit</button>
+                                <button mat-raised-button color="warn" *ngIf="this.role != '' && this.role == 'owner'" (click)="onDeleteFood(food.id)">Delete</button>
                             </div>
                         </div>
                     </div>

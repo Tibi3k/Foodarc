@@ -19,6 +19,12 @@
         <li *ngIf="this.currentUser != null && this.userRole == 'owner'">
             <a mat-button routerLink="/createfood" routerLinkActive="mat-accent">Add food</a>    
         </li>
+        <li *ngIf="this.currentUser != null && this.userRole == 'Customer'">
+            <a mat-button routerLink="/basket" routerLinkActive="mat-accent">Basket</a>    
+        </li>
+        <li *ngIf="this.currentUser != null && this.userRole == 'Customer'">
+            <a mat-button routerLink="/userorders" routerLinkActive="mat-accent">Orders</a>    
+        </li>
         <li>
             <button mat-button (click)="onLoginClicked()">{{this.currentUser == null ? "Log In" : "Log Out"}}</button>
         </li>

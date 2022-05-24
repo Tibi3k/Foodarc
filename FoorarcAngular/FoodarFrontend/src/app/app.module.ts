@@ -24,6 +24,7 @@ import { RestaurantDetailsComponent } from './components/restaurant-details/rest
 import {MatExpansionModule} from '@angular/material/expansion';
 import { ImageService } from './services/image.service';
 import { RestaurantService } from './services/restaurant.service';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [
@@ -47,7 +48,8 @@ import { RestaurantService } from './services/restaurant.service';
     MatSelectModule,
     MatInputModule,
     MatButtonModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatProgressSpinnerModule
   ],
   providers: [
     AuthService,
