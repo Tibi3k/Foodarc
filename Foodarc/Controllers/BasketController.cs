@@ -1,4 +1,5 @@
-﻿using Foodarc.DAL;
+﻿using Foodarc.Controllers.DTO;
+using Foodarc.DAL;
 using Foodarc.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -38,7 +39,7 @@ public class BasketController : ControllerBase
 
     [Authorize("User")]
     [HttpPost]
-    public async Task<ActionResult> AddFoodToBasket([FromBody] BasketFood basketFood)
+    public async Task<ActionResult> AddFoodToBasket([FromBody] CreateBasketFood basketFood)
     {
         var id = getUserIdFromClaim(User);
         await this.basketService.AddFoodToBasket(basketFood, id);
@@ -47,7 +48,7 @@ public class BasketController : ControllerBase
 
     [Authorize("User")]
     [HttpDelete("{foodId}")]
-    public async Task<ActionResult> AddFoodToBasket(string foodId)
+    public async Task<ActionResult> DeleteFoodFromBasket(string foodId)
     {
         var id = getUserIdFromClaim(User);
         await this.basketService.DeleteFoodFromBasket(id, foodId);

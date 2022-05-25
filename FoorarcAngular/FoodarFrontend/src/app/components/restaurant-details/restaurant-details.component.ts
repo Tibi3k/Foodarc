@@ -4,6 +4,9 @@ import { AuthService } from 'src/app/services/auth.service';
 import { AccountInfo } from '@azure/msal-browser'
 import { RestaurantService } from 'src/app/services/restaurant.service';
 import { ActivatedRoute, Route, Router } from '@angular/router';
+import { BasketService } from 'src/app/services/basket.service';
+import { Food } from 'src/app/model/food.model';
+import { BasketFood, CreateBasketFood } from 'src/app/model/basket.model';
 @Component({
   selector: 'app-restaurant-details',
   templateUrl: './restaurant-details.component.html',
@@ -15,7 +18,8 @@ export class RestaurantDetailsComponent implements OnInit {
     private authService: AuthService,
     private restaurantService: RestaurantService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private basketService: BasketService
   ) { }
   loadState = 'loading'
   currentUser: AccountInfo | null = null
@@ -61,6 +65,17 @@ export class RestaurantDetailsComponent implements OnInit {
     this.restaurantService.DeleteRestaurant()
       .subscribe(resulr => {
         this.router.navigate([''])
+      })
+  }
+
+  orderProduct(food: Food){
+    let basketFood: CreateBasketFood = {
+      restaurantUrl: this.router.url,
+      orderedFood: food,
+    }
+    this.basketService.AddFoodToBasket(basketFood)
+      .subscribe(restult => {
+        console.log('added')
       })
   }
 

@@ -44,7 +44,7 @@
                             <i>Calories: {{food.calories}} kcal</i>
                             <div class="spacer"></div>
                             <div class="food-buttons">
-                                <button mat-raised-button color="primary" *ngIf="this.role != '' && this.role == 'Customer'">Order</button>
+                                <button mat-raised-button color="primary" *ngIf="this.role != '' && this.role == 'Customer'" (click)="orderProduct(food)">Order</button>
                                 <button mat-raised-button color="" class="edit-button" 
                                     *ngIf="this.role != '' && this.role == 'owner'"
                                     [routerLink]="['/editfood', food.id]"

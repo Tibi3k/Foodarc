@@ -33,4 +33,7 @@ public class Restaurant
 
     [JsonProperty(PropertyName = "imagePath")]
     public string ImagePath { get; set; }
+
+    [JsonProperty(PropertyName = "orders")]
+    public Order Orders { get; set; }
 }

@@ -1,0 +1,40 @@
+.no-content{
+    width: 100%;
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+    user-select: none;
+}
+
+.container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.mat-expansion-panel{
+    max-width: 1200px;
+    width: 100%;
+}
+
+.bottom{
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1200px;
+    margin-top: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.content{
+    display: flex;
+}
+
+.orders{
+    background-color: #F5F5F5;
+}

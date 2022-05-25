@@ -29,7 +29,13 @@ public class RestaurantService : IRestaurantService
             AvailableFoods = new List<Food>(),
             Name = restaurant.Name,
             Description = restaurant.Description,
-            ImagePath = restaurant.ImagePath
+            ImagePath = restaurant.ImagePath,
+            Orders = new Order {
+                Id = Guid.NewGuid().ToString(),
+                UserId = id,
+                OrderDate = DateTime.Now,
+                Orders = new List<Basket>()
+            }
         };
         await this.restaurantContainer.CreateItemAsync<Restaurant>(newRestaurant, new PartitionKey(id));
     }
@@ -120,5 +126,27 @@ public class RestaurantService : IRestaurantService
         var restaurant = await this.GetRestaurantById(id);
         restaurant.AvailableFoods = restaurant.AvailableFoods.Where(f => f.Id != foodId).ToList();
         await this.restaurantContainer.UpsertItemAsync(restaurant, new PartitionKey(restaurant.Id));
+    }
+
+    public async Task AddOrderToRestaurant(string id, Basket order) {
+        var restaurant = await this.GetRestaurantById(id);
+        if (restaurant == null)
+            return;
+        if (restaurant.Orders == null) {
+            restaurant.Orders = new Order
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserId = id,
+                OrderDate = DateTime.Now,
+                Orders = new List<Basket>()
+            };
+        }
+        restaurant.Orders.Orders.Add(order);
+        await this.restaurantContainer.UpsertItemAsync(restaurant, new PartitionKey(restaurant.Id));
+    }
+
+    public async Task<Order> GetOrderOfRestaurant(string id) {
+        var restaurant = await this.GetRestaurantById(id);
+        return restaurant.Orders;
     }
 }

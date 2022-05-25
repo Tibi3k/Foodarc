@@ -87,7 +87,7 @@ export class CreateRestaurantComponent implements OnInit {
       imagePath: '',
       country: this.form.value.country,
       zipCode: this.form.value.zipcode,
-      city: this.form.value.city
+      city: this.form.value.city,
     }
   }
 
@@ -102,7 +102,8 @@ export class CreateRestaurantComponent implements OnInit {
       availableFoods: this.oldRestaurant!.availableFoods,
       country: this.form.value.country,
       zipCode: this.form.value.zipcode,
-      city: this.form.value.city
+      city: this.form.value.city,
+      orders: this.oldRestaurant!.orders
     }
   }
 

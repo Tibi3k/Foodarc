@@ -1,0 +1,34 @@
+<div class="container">
+    <mat-expansion-panel *ngFor="let order of this.currentOrders?.orders;let i = index" [ngClass]="i %2 == 0 ? 'orders': ''">
+        <mat-expansion-panel-header>
+            <mat-panel-title>
+                {{order?.lastEdited | date: 'medium'}}
+            </mat-panel-title>
+            <mat-panel-description>
+                {{order?.totalCost}} ft
+            </mat-panel-description>
+        </mat-expansion-panel-header>
+        <mat-expansion-panel *ngFor="let food of order?.foods">
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                {{food?.orderedFood?.name}}
+                </mat-panel-title>
+                <mat-panel-description>
+                {{food?.addTime | date: 'medium'}}
+                </mat-panel-description>
+            </mat-expansion-panel-header>
+            <div class="content">
+                <img [src]="food.orderedFood?.imagePath">
+                <div class="restaurant-data">
+                    <h1>{{food.orderedFood?.name}}</h1>
+                    <h1>{{food.orderedFood?.price}}ft</h1>
+                    <span>{{food.orderedFood?.description}}</span><br>
+                    <i>Calories: {{food.orderedFood?.calories}} kcal</i>
+                </div>
+            </div>
+        </mat-expansion-panel>
+    </mat-expansion-panel>
+    <div class="no-content" *ngIf="(this.currentOrders == null || this.currentOrders?.orders?.length == 0)">
+        <h3>Your basket is empty</h3>
+    </div>
+</div>

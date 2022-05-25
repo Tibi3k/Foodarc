@@ -14,4 +14,6 @@ public interface IRestaurantService
     public Task<Food?> GetFoodById(string restaurantId, string foodId);
     public Task UpdateFoodAsync(string id, Food food);
     public Task DeleteFoodFromRestaurant(string id, string foodId);
+    public Task<Order> GetOrderOfRestaurant(string id);
+    public Task AddOrderToRestaurant(string id, Basket order);
 }

@@ -14,7 +14,7 @@
             <a mat-button [routerLink]="['/restaurant', this.currentUser?.idTokenClaims?.oid]" routerLinkActive="mat-accent">My restaurant</a>    
         </li>
         <li *ngIf="this.currentUser != null && this.userRole == 'owner'">
-            <a mat-button routerLink="/restaurantorders" routerLinkActive="mat-accent">Orders</a>    
+            <a mat-button [routerLink]="['/rorders', this.currentUser.idTokenClaims?.oid]" routerLinkActive="mat-accent">Orders</a>    
         </li>
         <li *ngIf="this.currentUser != null && this.userRole == 'owner'">
             <a mat-button routerLink="/createfood" routerLinkActive="mat-accent">Add food</a>    
@@ -23,7 +23,7 @@
             <a mat-button routerLink="/basket" routerLinkActive="mat-accent">Basket</a>    
         </li>
         <li *ngIf="this.currentUser != null && this.userRole == 'Customer'">
-            <a mat-button routerLink="/userorders" routerLinkActive="mat-accent">Orders</a>    
+            <a mat-button [routerLink]="['/orders', this.currentUser.idTokenClaims?.oid]" routerLinkActive="mat-accent">Orders</a>    
         </li>
         <li>
             <button mat-button (click)="onLoginClicked()">{{this.currentUser == null ? "Log In" : "Log Out"}}</button>

@@ -25,6 +25,10 @@ import {MatExpansionModule} from '@angular/material/expansion';
 import { ImageService } from './services/image.service';
 import { RestaurantService } from './services/restaurant.service';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { BasketComponent } from './components/basket/basket.component';
+import { BasketService } from './services/basket.service';
+import { OrdersComponent } from './components/orders/orders.component';
+import { OrderService } from './services/order.service';
 
 @NgModule({
   declarations: [
@@ -33,7 +37,9 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     CreateRestaurantComponent,
     CreateFoodComponent,
     ListRestaurantsComponent,
-    RestaurantDetailsComponent
+    RestaurantDetailsComponent,
+    BasketComponent,
+    OrdersComponent
   ],
   imports: [
     BrowserModule,
@@ -55,6 +61,8 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     AuthService,
     ImageService,
     RestaurantService,
+    BasketService,
+    OrderService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: MsalInterceptor,

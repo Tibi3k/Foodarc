@@ -1,4 +1,5 @@
-﻿using Foodarc.Model;
+﻿using Foodarc.Controllers.DTO;
+using Foodarc.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
@@ -30,7 +31,14 @@ public class BasketService : IBasketService
     }
 
 
-    public async Task AddFoodToBasket(BasketFood basketFood, string id) {
+    public async Task AddFoodToBasket(CreateBasketFood basketFood, string id) {
+        var bFood = new BasketFood
+        {
+            Id = Guid.NewGuid().ToString(),
+            AddTime = DateTime.Now,
+            OrderedFood = basketFood.OrderedFood,
+            RestaurantUrl = basketFood.RestaurantUrl
+        };
         var basket = await this.GetBasketById(id);
         if (basket == null) {
             basket = new Basket
@@ -38,13 +46,13 @@ public class BasketService : IBasketService
                 Id = id,
                 UserId = id,
                 Foods = new List<BasketFood>(),
-                LastEdited = basketFood.AddTime,
+                LastEdited = bFood.AddTime,
                 TotalCost = 0
             };
         }
-        basket.Foods.Add(basketFood);
-        basket.LastEdited = basketFood.AddTime;
-        basket.TotalCost += basketFood.OrderedFood.Price;
+        basket.Foods.Add(bFood);
+        basket.LastEdited = bFood.AddTime;
+        basket.TotalCost += bFood.OrderedFood.Price;
         await this.basketContainer.UpsertItemAsync<Basket>(basket, new PartitionKey(basket.UserId));
     }
 
@@ -55,7 +63,10 @@ public class BasketService : IBasketService
     public async Task DeleteFoodFromBasket(string id, string foodId)
     {
         var basket = await this.GetBasketById(id);
+        var food = basket.Foods.Where(f => f.Id == foodId).SingleOrDefault();
         basket.Foods = basket.Foods.Where(f => f.Id != foodId).ToList();
+        basket.LastEdited = DateTime.Now;
+        basket.TotalCost -= food.OrderedFood.Price;
         await this.basketContainer.UpsertItemAsync(basket, new PartitionKey(basket.UserId));
     }
 }

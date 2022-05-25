@@ -1,0 +1,39 @@
+<div class="container">
+    <mat-expansion-panel *ngFor="let food of this.userBasket?.foods">
+        <mat-expansion-panel-header>
+            <mat-panel-title>
+              {{food?.orderedFood?.name}}
+            </mat-panel-title>
+            <mat-panel-description>
+              {{food?.addTime | date: 'medium'}}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <div class="content">
+            <img [src]="food.orderedFood?.imagePath">
+            <div class="restaurant-data">
+                <h1>{{food.orderedFood?.name}}</h1>
+                <h1>{{food.orderedFood?.price}}ft</h1>
+                <span>{{food.orderedFood?.description}}</span><br>
+                <i>Calories: {{food.orderedFood?.calories}} kcal</i>
+                <div class="spacer"></div>
+                <div class="food-buttons">
+                    <button mat-raised-button color="warn" (click)="onDeleteFood(food.id)">Delete</button>
+                </div>
+            </div>
+        </div>
+    </mat-expansion-panel>
+    <div class="no-content" *ngIf="(this.userBasket == null || this.userBasket?.foods?.length == 0)">
+            <h3>Your basket is empty</h3>
+    </div>
+
+    <div class="bottom" *ngIf="this.userBasket != null && this.userBasket?.foods?.length != 0">
+        <div>
+            <h3>Total cost: {{this.userBasket?.totalCost}}ft</h3>
+        </div>
+        <div>
+          <div class="button-spinner-container">
+            <button mat-raised-button color="primary" (click)="orderBasket()">Order</button>
+          </div>
+        </div>
+      </div>
+</div>

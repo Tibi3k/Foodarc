@@ -1,3 +1,4 @@
+import { Basket } from "./basket.model"
 import { Food } from "./food.model"
 
 export interface Restaurant{
@@ -10,7 +11,8 @@ export interface Restaurant{
     zipCode: number
     availableFoods: Food[],
     description: string,
-    imagePath: string
+    imagePath: string,
+    orders: Basket[]
 }
 
 export interface CreateRestaurant{

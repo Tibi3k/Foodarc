@@ -12,8 +12,11 @@ export class ListRestaurantsComponent implements OnInit {
   constructor(private restaurantService: RestaurantService) { }
   restaurants: Restaurant[] = []
   ngOnInit(): void {
+    console.log('asdf')
     this.restaurantService.GetAllRestaurants()
-      .subscribe(result => this.restaurants = result)
+      .subscribe(result => {this.restaurants = result
+        console.log(this.restaurants)
+      })
   }
 
 }
