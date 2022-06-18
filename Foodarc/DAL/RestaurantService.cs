@@ -1,4 +1,6 @@
-﻿using Foodarc.Controllers.DTO;
+﻿using AutoMapper;
+using Foodarc.Controllers.DTO;
+using Foodarc.DAL.EfDbContext;
 using Foodarc.Model;
 using Microsoft.Azure.Cosmos;
 
@@ -6,19 +8,22 @@ namespace Foodarc.DAL;
 
 public class RestaurantService : IRestaurantService
 {
-    private Container restaurantContainer;
 
-    public RestaurantService(
-        CosmosClient dbClient,
-        string databaseName,
-        string containerName)
+    private CosmosDbContext context;
+    private readonly IMapper mapper;
+
+    public RestaurantService(CosmosDbContext db, IMapper mapper)
     {
-        this.restaurantContainer = dbClient.GetContainer(databaseName, containerName);
+        this.mapper = mapper;
+        context = db;
     }
 
     public async Task CreateRestaurant(CreateRestaurant restaurant, string id)
     {
-        var newRestaurant = new Restaurant
+        Console.WriteLine("Creating restaurant");
+        Console.WriteLine(restaurant);
+        Console.WriteLine(restaurant.Address);
+        var newRestaurant = new DbRestaurant
         {
             Id = id,
             OwnerId = id,
@@ -26,89 +31,81 @@ public class RestaurantService : IRestaurantService
             ZipCode = restaurant.ZipCode,
             City = restaurant.City,
             Country = restaurant.Country,
-            AvailableFoods = new List<Food>(),
+            AvailableFoods = new List<DbFood>(),
             Name = restaurant.Name,
             Description = restaurant.Description,
             ImagePath = restaurant.ImagePath,
-            Orders = new Order {
-                Id = Guid.NewGuid().ToString(),
-                UserId = id,
-                OrderDate = DateTime.Now,
-                Orders = new List<Basket>()
-            }
+            Orders = new DbRestaurantOrder {
+                    Id = Guid.NewGuid().ToString(),
+                    UserId = id,
+                    OrderDate = DateTime.Now,
+                    Orders = new List<DbOrderBasket>()
+                }      
         };
-        await this.restaurantContainer.CreateItemAsync<Restaurant>(newRestaurant, new PartitionKey(id));
+        Console.WriteLine("Creating new restaurant");
+        Console.WriteLine(newRestaurant.Address);
+        await context.Restaurant.AddAsync(newRestaurant);
+        Console.WriteLine(newRestaurant.Address);
+        await context.SaveChangesAsync();
     }
 
     public async Task<List<Restaurant>> GetAllRestaurants() {
-        List<Restaurant> allSalesForAccount1 = new List<Restaurant>();
-        using (FeedIterator<Restaurant> resultSet = restaurantContainer.GetItemQueryIterator<Restaurant>(
-            queryDefinition: null,
-            requestOptions: new QueryRequestOptions()))
-        {
-            while (resultSet.HasMoreResults)
-            {
-                FeedResponse<Restaurant> response = await resultSet.ReadNextAsync();
-                Restaurant food = response.First();
-                if (response.Diagnostics != null)
-                {
-                    Console.WriteLine($" Diagnostics {response.Diagnostics.ToString()}");
-                }
-
-                allSalesForAccount1.AddRange(response.Resource);
-            }
-        }
-        return allSalesForAccount1;
+        //return context.Restaurant.Where(_ => true).Select(x => mapper.Map<Restaurant>(x)).ToList();  
+        var a  = context.Restaurant.Where(_ => true).ToList();
+        Console.WriteLine("Getting all restaurants");
+        Console.WriteLine(a);
+        Console.WriteLine(a[0].Address);
+        return new List<Restaurant>();
+        return a.Select(x => mapper.Map<Restaurant>(x)).ToList();
     }
 
     public async Task DeleteRestaurantAsync(string id)
     {
-        await this.restaurantContainer.DeleteItemAsync<Restaurant>(id, new PartitionKey(id));
+        var restaurant = await context.Restaurant.FindAsync(id);
+        context.Restaurant.Remove(restaurant);
+        await context.SaveChangesAsync();
     }
 
     public async Task<Restaurant?> GetRestaurantById(string id)
     {
-        try
-        {
-            ItemResponse<Restaurant> response = await this.restaurantContainer.ReadItemAsync<Restaurant>(id, new PartitionKey(id));
-            return response.Resource;
-        }
-        catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
-        {
+        var restaurant = await context.Restaurant.FindAsync(id);
+        if (restaurant == null)
             return null;
-        }
+        return mapper.Map<Restaurant>(restaurant);
     }
 
     public async Task<Food?> GetFoodById(string restaurantId, string foodId)
     {
-        try
-        {
-            ItemResponse<Restaurant> response = await this.restaurantContainer.ReadItemAsync<Restaurant>(restaurantId, new PartitionKey(restaurantId));
-            return response.Resource.AvailableFoods.Where(f => f.Id == foodId).SingleOrDefault();
-        }
-        catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
-        {
+        var restaurant = await context.Restaurant.FindAsync(restaurantId);
+        if (restaurant == null)
             return null;
-        }
+        var food = restaurant.AvailableFoods.FirstOrDefault(x => x.Id == foodId);
+        if (food == null)
+            return null;
+        return mapper.Map<Food>(food);
     }
 
     public async Task UpdateItemAsync(string id, Restaurant item)
     {
-        await this.restaurantContainer.UpsertItemAsync<Restaurant>(item, new PartitionKey(id));
+        var restaurant = await context.Restaurant.FindAsync(id);
+        if (restaurant == null)
+            return;
+        context.Restaurant.Update(mapper.Map<DbRestaurant>(item));
+        await context.SaveChangesAsync();
     }
 
     public async Task UpdateFoodAsync(string id, Food food)
     {
-        var restaurant = await this.GetRestaurantById(id);
+        var restaurant = await context.Restaurant.FindAsync(id);
         var index = restaurant.AvailableFoods.FindIndex(f => f.Id == food.Id);
-        restaurant.AvailableFoods[index] = food;
-        await this.restaurantContainer.UpsertItemAsync(restaurant, new PartitionKey(restaurant.Id));
+        restaurant.AvailableFoods[index] = mapper.Map<DbFood>(food);
+        await context.SaveChangesAsync();
     }
 
 
     public async Task AddFoodToRestaurant(string id, CreateFood food) {
-        var restaurant = await this.GetRestaurantById(id);
-        var foodToAdd = new Food
+        var restaurant = await context.Restaurant.FindAsync(id);
+        var foodToAdd = new DbFood
         {
             Id = Guid.NewGuid().ToString(),
             Description = food.Description,
@@ -118,31 +115,32 @@ public class RestaurantService : IRestaurantService
             ImagePath = food.ImagePath
         };
         restaurant.AvailableFoods.Add(foodToAdd);
-        await this.restaurantContainer.UpsertItemAsync(restaurant, new PartitionKey(restaurant.Id));
+        await context.SaveChangesAsync();
     }
 
     public async Task DeleteFoodFromRestaurant(string id, string foodId)
     {
-        var restaurant = await this.GetRestaurantById(id);
+        var restaurant = await context.Restaurant.FindAsync(id);
         restaurant.AvailableFoods = restaurant.AvailableFoods.Where(f => f.Id != foodId).ToList();
-        await this.restaurantContainer.UpsertItemAsync(restaurant, new PartitionKey(restaurant.Id));
+        await context.SaveChangesAsync();
     }
 
     public async Task AddOrderToRestaurant(string id, Basket order) {
-        var restaurant = await this.GetRestaurantById(id);
+        var restaurant = await context.Restaurant.FindAsync(id);
         if (restaurant == null)
             return;
         if (restaurant.Orders == null) {
-            restaurant.Orders = new Order
+            restaurant.Orders = new DbRestaurantOrder
             {
                 Id = Guid.NewGuid().ToString(),
                 UserId = id,
                 OrderDate = DateTime.Now,
-                Orders = new List<Basket>()
+                Orders = new List<DbOrderBasket>()
             };
         }
-        restaurant.Orders.Orders.Add(order);
-        await this.restaurantContainer.UpsertItemAsync(restaurant, new PartitionKey(restaurant.Id));
+        var dbBasket = mapper.Map<DbBasket>(order);
+        restaurant.Orders.Orders.Add(mapper.Map<DbOrderBasket>(dbBasket));
+        await context.SaveChangesAsync();
     }
 
     public async Task<Order> GetOrderOfRestaurant(string id) {

@@ -1,33 +1,31 @@
 ﻿using Foodarc.Controllers.DTO;
+using Foodarc.DAL.EfDbContext;
 using Foodarc.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
+using AutoMapper.QueryableExtensions;
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace Foodarc.DAL;
 public class BasketService : IBasketService
 {
-    private Container basketContainer;
+    private CosmosDbContext context;
+    private readonly IMapper mapper;
 
-    public BasketService(
-        CosmosClient dbClient,
-        string databaseName,
-        string containerName)
+    public BasketService(CosmosDbContext db, IMapper mapper)
     {
-        this.basketContainer = dbClient.GetContainer(databaseName, containerName);
+        this.mapper = mapper; 
+        context = db;
     }
 
     public async Task<Basket?> GetBasketById(string id)
     {
-        try
-        {
-            ItemResponse<Basket> response = await this.basketContainer.ReadItemAsync<Basket>(id, new PartitionKey(id));
-            return response.Resource;
-        }
-        catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
-        {
+        var basket = await context.Baskets.WithPartitionKey(id).SingleOrDefaultAsync();
+        if (basket == null)
             return null;
-        }
+        return mapper.Map<Basket?>(basket);
     }
 
 
@@ -39,34 +37,36 @@ public class BasketService : IBasketService
             OrderedFood = basketFood.OrderedFood,
             RestaurantUrl = basketFood.RestaurantUrl
         };
-        var basket = await this.GetBasketById(id);
+        var basket = await context.Baskets.WithPartitionKey(id).SingleOrDefaultAsync();
         if (basket == null) {
-            basket = new Basket
+            basket = new DbBasket
             {
                 Id = id,
                 UserId = id,
-                Foods = new List<BasketFood>(),
+                Foods = new List<DbBasketFood>(),
                 LastEdited = bFood.AddTime,
                 TotalCost = 0
             };
         }
-        basket.Foods.Add(bFood);
         basket.LastEdited = bFood.AddTime;
         basket.TotalCost += bFood.OrderedFood.Price;
-        await this.basketContainer.UpsertItemAsync<Basket>(basket, new PartitionKey(basket.UserId));
+        basket.Foods.Add(mapper.Map<DbBasketFood>(bFood));
+        await context.SaveChangesAsync();
     }
 
     public async Task DeleteBasket(string id) {
-        await this.basketContainer.DeleteItemAsync<Basket>(id, new PartitionKey(id));
+        var basket = await context.Baskets.WithPartitionKey(id).SingleAsync();
+        this.context.Baskets.Remove(basket);
+        await this.context.SaveChangesAsync();
     }
 
     public async Task DeleteFoodFromBasket(string id, string foodId)
     {
-        var basket = await this.GetBasketById(id);
+        var basket = await context.Baskets.WithPartitionKey(id).SingleAsync();
         var food = basket.Foods.Where(f => f.Id == foodId).SingleOrDefault();
         basket.Foods = basket.Foods.Where(f => f.Id != foodId).ToList();
         basket.LastEdited = DateTime.Now;
         basket.TotalCost -= food.OrderedFood.Price;
-        await this.basketContainer.UpsertItemAsync(basket, new PartitionKey(basket.UserId));
+        await context.SaveChangesAsync();
     }
 }

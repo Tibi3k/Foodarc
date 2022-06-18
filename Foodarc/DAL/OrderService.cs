@@ -1,50 +1,46 @@
-﻿using Foodarc.Model;
+﻿using AutoMapper;
+using Foodarc.DAL.EfDbContext;
+using Foodarc.Model;
 using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore;
 
 namespace Foodarc.DAL;
 
 public class OrderService : IOrderServcie
 {
 
-    private Container ordersContainer;
+    private CosmosDbContext context;
+    private readonly IMapper mapper;
 
-    public OrderService(
-        CosmosClient dbClient,
-        string databaseName,
-        string containerName)
+    public OrderService(CosmosDbContext db, IMapper mapper)
     {
-        this.ordersContainer = dbClient.GetContainer(databaseName, containerName);
+        this.mapper = mapper;
+        context = db;
     }
 
     public async Task<Order?> GetBasketOfUser(string userId) {
-        try
-        {
-            ItemResponse<Order> response = await this.ordersContainer.ReadItemAsync<Order>(userId, new PartitionKey(userId));
-            return response.Resource;
-        }
-        catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
-        {
+
+        var order = await context.Orders.WithPartitionKey(userId).SingleOrDefaultAsync();
+        if (order == null)
             return null;
-        }
+        return mapper.Map<Order?>(order);
     }
 
     public async Task AddOrderToUser(string userId, Basket order) {
-        try
-        {
-            ItemResponse<Order> response = await this.ordersContainer.ReadItemAsync<Order>(userId, new PartitionKey(userId));
-            response.Resource.Orders.Add(order);
-            await this.ordersContainer.UpsertItemAsync(response.Resource.UserId, new PartitionKey(response.Resource.UserId));
-        }
-        catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
-        {
-            var newOrder = new Order {
+
+        var dbOrder = await context.Orders.WithPartitionKey(userId).SingleOrDefaultAsync();
+        if (dbOrder == null) {
+            dbOrder = new DbOrder
+            {
                 Id = userId,
                 OrderDate = DateTime.Now,
                 UserId = userId,
-                Orders = new List<Basket>()
+                Orders = new List<DbOrderBasket>()
             };
-            newOrder.Orders.Add(order);
-            await this.ordersContainer.UpsertItemAsync(newOrder, new PartitionKey(newOrder.UserId));
+            await context.Orders.AddAsync(dbOrder);
         }
+        var dbBasket = mapper.Map<DbBasket>(order);
+        dbOrder.Orders.Add(mapper.Map<DbOrderBasket>(dbBasket));
+        await context.SaveChangesAsync();
     }
 }

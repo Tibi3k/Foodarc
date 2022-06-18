@@ -1,6 +1,9 @@
+using Foodarc.Config;
 using Foodarc.DAL;
+using Foodarc.DAL.EfDbContext;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using System.Configuration;
 
@@ -16,6 +19,17 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAdB2C"));
 
+builder.Services.AddDbContext<CosmosDbContext>(options =>
+{
+    var cosmosDB = configuration.GetSection("CosmosDb");
+    options.UseCosmos(
+        cosmosDB.GetValue<string>("Account"),
+        cosmosDB.GetValue<string>("Key"),
+        cosmosDB.GetValue<string>("DatabaseName")
+    );
+});
+
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 builder.Services.AddCors(options =>
 {
@@ -41,52 +55,9 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
-static async Task<RestaurantService> InitializeRestaurantServiceContainer(IConfigurationRoot configurationRoot)
-{
-    var configuration = configurationRoot.GetSection("CosmosDb");
-    string databaseName = configuration.GetSection("DatabaseName").Value;
-    string account = configuration.GetSection("Account").Value;
-    string key = configuration.GetSection("Key").Value;
-    CosmosClient client = new CosmosClient(account, key);
-    var containerName = "Restaurants";
-    RestaurantService cosmosDbService = new RestaurantService(client, databaseName, containerName);
-    DatabaseResponse database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
-    await database.Database.CreateContainerIfNotExistsAsync(containerName, "/id");
-    return cosmosDbService;
-}
-
-static async Task<OrderService> InitializeOrderServiceContainer(IConfigurationRoot configurationRoot)
-{
-    var configuration = configurationRoot.GetSection("CosmosDb");
-    string databaseName = configuration.GetSection("DatabaseName").Value;
-    string account = configuration.GetSection("Account").Value;
-    string key = configuration.GetSection("Key").Value;
-    CosmosClient client = new CosmosClient(account, key);
-    var containerName = "Orders";
-    OrderService cosmosDbService = new OrderService(client, databaseName, containerName);
-    DatabaseResponse database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
-    await database.Database.CreateContainerIfNotExistsAsync(containerName, "/userId");
-    return cosmosDbService;
-}
-
-static async Task<BasketService> InitializeBasketServiceContainer(IConfigurationRoot configurationRoot)
-{
-    var configuration = configurationRoot.GetSection("CosmosDb");
-    string databaseName = configuration.GetSection("DatabaseName").Value;
-    string account = configuration.GetSection("Account").Value;
-    string key = configuration.GetSection("Key").Value;
-    CosmosClient client = new CosmosClient(account, key);
-    var containerName = "Baskets";
-    var cosmosDbService = new BasketService(client, databaseName, containerName);
-    DatabaseResponse database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
-    await database.Database.CreateContainerIfNotExistsAsync(containerName, "/userId");
-    return cosmosDbService;
-}
-
-
-builder.Services.AddSingleton<IRestaurantService>(InitializeRestaurantServiceContainer(configuration).GetAwaiter().GetResult());
-builder.Services.AddSingleton<IOrderServcie>(InitializeOrderServiceContainer(configuration).GetAwaiter().GetResult());
-builder.Services.AddSingleton<IBasketService>(InitializeBasketServiceContainer(configuration).GetAwaiter().GetResult());
+builder.Services.AddTransient<IRestaurantService, RestaurantService>();
+builder.Services.AddTransient<IOrderServcie, OrderService>();
+builder.Services.AddTransient<IBasketService, BasketService>();
 
 var app = builder.Build();
 
