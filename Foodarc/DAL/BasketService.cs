@@ -37,6 +37,7 @@ public class BasketService : IBasketService
             OrderedFood = basketFood.OrderedFood,
             RestaurantUrl = basketFood.RestaurantUrl
         };
+        Console.WriteLine("id " + id );
         var basket = await context.Baskets.WithPartitionKey(id).SingleOrDefaultAsync();
         if (basket == null) {
             basket = new DbBasket
@@ -47,6 +48,8 @@ public class BasketService : IBasketService
                 LastEdited = bFood.AddTime,
                 TotalCost = 0
             };
+            context.Baskets.Add(basket);
+            await context.SaveChangesAsync();
         }
         basket.LastEdited = bFood.AddTime;
         basket.TotalCost += bFood.OrderedFood.Price;

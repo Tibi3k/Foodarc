@@ -21,6 +21,8 @@ namespace Foodarc.DAL.EfDbContext {
             modelBuilder.Entity<DbBasket>()
                 .ToContainer("Baskets");
             modelBuilder.Entity<DbBasket>()
+                    .HasNoDiscriminator();
+            modelBuilder.Entity<DbBasket>()
                 .HasPartitionKey(b => b.UserId);
             modelBuilder.Entity<DbBasket>()
                 .Property(b => b.LastEdited);
@@ -53,23 +55,27 @@ namespace Foodarc.DAL.EfDbContext {
             modelBuilder.Entity<DbOrder>()
                 .HasKey(p => p.Id);
             modelBuilder.Entity<DbOrder>()
+                    .HasNoDiscriminator();
+            modelBuilder.Entity<DbOrder>()
                 .ToContainer("Orders");
             modelBuilder.Entity<DbOrder>()
                 .HasPartitionKey(p => p.UserId);
             modelBuilder.Entity<DbOrder>()
                 .Property(p => p.OrderDate);
-            modelBuilder.Entity<DbOrder>()
-                .OwnsMany(p => p.Orders, y => {
-                    y.OwnsMany(food => food.Foods, x =>
-                    {
-                        x.OwnsOne(f => f.OrderedFood);
-                    });
-                });
+            //modelBuilder.Entity<DbOrder>()
+            //    .OwnsMany(p => p.Orders, y => {
+            //        y.OwnsMany(food => food.Foods, x =>
+            //        {
+            //            x.OwnsOne(f => f.OrderedFood);
+            //        });
+            //    });
 
             modelBuilder.Entity<DbRestaurant>()
                 .HasKey(p => p.Id);
             modelBuilder.Entity<DbRestaurant>()
                 .ToContainer("Restaurants");
+            modelBuilder.Entity<DbRestaurant>()
+                    .HasNoDiscriminator();
             modelBuilder.Entity<DbRestaurant>()
                 .HasPartitionKey(p => p.Id);
             modelBuilder.Entity<DbRestaurant>()
@@ -89,15 +95,28 @@ namespace Foodarc.DAL.EfDbContext {
             modelBuilder.Entity<DbRestaurant>()
                 .Property(p => p.ImagePath);
             modelBuilder.Entity<DbRestaurant>()
-                .OwnsOne(p => p.Orders, x => {
-                    x.OwnsMany(order => order.Orders, y =>
-                    {
-                        y.OwnsMany(foods => foods.Foods, z =>
-                        {
-                            z.OwnsOne(f => f.OrderedFood);
-                        });
-                    });
-                });
+                .OwnsMany(p => p.Orders);
+                
+            //modelBuilder.Entity<DbRestaurant>()
+            //.OwnsOne(p => p.Orders 
+            // ,x =>
+            // {
+            //     x.ToJsonProperty("orders");
+            //     x.WithOwner();
+            //     x.Property(p => p.OrderDate);
+            //     x.Property(p => p.UserId);
+            //     x.Property(p => p.Id);
+            //     x.OwnsMany(order => order.Orders, y =>
+            //     {
+            //         y.ToJsonProperty("orders");
+            //         y.OwnsMany(foods => foods.Foods, z =>
+            //         {
+            //             z.ToJsonProperty("foods");
+            //             z.OwnsOne(f => f.OrderedFood).WithOwner();
+            //         }).WithOwner();
+            //     }).WithOwner();
+            // }
+            //);
             modelBuilder.Entity<DbRestaurant>()
                 .OwnsMany(p => p.AvailableFoods);
 

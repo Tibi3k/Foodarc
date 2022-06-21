@@ -17,5 +17,6 @@ public class AutoMapperProfile : Profile
         CreateMap<DbOrder, DbRestaurantOrder>().ReverseMap();
         CreateMap<DbRestaurantOrder, Order>().ReverseMap();
         CreateMap<DbOrderBasket, DbBasket>().ReverseMap();
+        CreateMap<DbOrderBasket, Basket>().ReverseMap();
     }   
 }

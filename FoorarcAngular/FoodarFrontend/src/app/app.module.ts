@@ -106,7 +106,7 @@ export function MSALInstanceFactory(): IPublicClientApplication {
 export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
   const protectedResourceMap = new Map<string, Array<string>>();
   // protectedResourceMap.set('https://graph.microsoft.com/v1.0/me', ['user.read']); // Prod environment. Uncomment to use.
-  protectedResourceMap.set('http://localhost:3000/api/', [environment.scopeUrl]);
+  protectedResourceMap.set(environment.backendUrl, [environment.scopeUrl]);
 
 
   return {

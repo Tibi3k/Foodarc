@@ -35,12 +35,14 @@ public class RestaurantService : IRestaurantService
             Name = restaurant.Name,
             Description = restaurant.Description,
             ImagePath = restaurant.ImagePath,
-            Orders = new DbRestaurantOrder {
+            Orders = new List<DbRestaurantOrder>{
+                new DbRestaurantOrder {
                     Id = Guid.NewGuid().ToString(),
                     UserId = id,
                     OrderDate = DateTime.Now,
                     Orders = new List<DbOrderBasket>()
-                }      
+                }
+            }
         };
         Console.WriteLine("Creating new restaurant");
         Console.WriteLine(newRestaurant.Address);
@@ -50,13 +52,7 @@ public class RestaurantService : IRestaurantService
     }
 
     public async Task<List<Restaurant>> GetAllRestaurants() {
-        //return context.Restaurant.Where(_ => true).Select(x => mapper.Map<Restaurant>(x)).ToList();  
-        var a  = context.Restaurant.Where(_ => true).ToList();
-        Console.WriteLine("Getting all restaurants");
-        Console.WriteLine(a);
-        Console.WriteLine(a[0].Address);
-        return new List<Restaurant>();
-        return a.Select(x => mapper.Map<Restaurant>(x)).ToList();
+        return context.Restaurant.Where(_ => true).Select(x => mapper.Map<Restaurant>(x)).ToList();  
     }
 
     public async Task DeleteRestaurantAsync(string id)
@@ -105,6 +101,8 @@ public class RestaurantService : IRestaurantService
 
     public async Task AddFoodToRestaurant(string id, CreateFood food) {
         var restaurant = await context.Restaurant.FindAsync(id);
+        if (restaurant == null)
+            return;
         var foodToAdd = new DbFood
         {
             Id = Guid.NewGuid().ToString(),
@@ -114,6 +112,8 @@ public class RestaurantService : IRestaurantService
             Price = food.Price,
             ImagePath = food.ImagePath
         };
+        if(restaurant.AvailableFoods == null)
+            restaurant.AvailableFoods = new List<DbFood>();
         restaurant.AvailableFoods.Add(foodToAdd);
         await context.SaveChangesAsync();
     }
@@ -130,21 +130,23 @@ public class RestaurantService : IRestaurantService
         if (restaurant == null)
             return;
         if (restaurant.Orders == null) {
-            restaurant.Orders = new DbRestaurantOrder
+            restaurant.Orders = new List<DbRestaurantOrder>{ new DbRestaurantOrder
             {
                 Id = Guid.NewGuid().ToString(),
                 UserId = id,
                 OrderDate = DateTime.Now,
                 Orders = new List<DbOrderBasket>()
-            };
+            }
+        };
         }
         var dbBasket = mapper.Map<DbBasket>(order);
-        restaurant.Orders.Orders.Add(mapper.Map<DbOrderBasket>(dbBasket));
+        dbBasket.Id = Guid.NewGuid().ToString();    
+        restaurant.Orders[0].Orders.Add(mapper.Map<DbOrderBasket>(dbBasket));
         await context.SaveChangesAsync();
     }
 
     public async Task<Order> GetOrderOfRestaurant(string id) {
         var restaurant = await this.GetRestaurantById(id);
-        return restaurant.Orders;
+        return restaurant.Orders[0];
     }
 }

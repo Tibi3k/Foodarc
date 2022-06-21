@@ -35,5 +35,5 @@ public class Restaurant
     public string ImagePath { get; set; }
 
     [JsonProperty(PropertyName = "orders")]
-    public Order Orders { get; set; }
+    public List<Order> Orders { get; set; }
 }

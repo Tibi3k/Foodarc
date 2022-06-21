@@ -32,7 +32,7 @@ public class OrderService : IOrderServcie
         if (dbOrder == null) {
             dbOrder = new DbOrder
             {
-                Id = userId,
+                Id = Guid.NewGuid().ToString(),
                 OrderDate = DateTime.Now,
                 UserId = userId,
                 Orders = new List<DbOrderBasket>()
@@ -40,6 +40,7 @@ public class OrderService : IOrderServcie
             await context.Orders.AddAsync(dbOrder);
         }
         var dbBasket = mapper.Map<DbBasket>(order);
+        dbBasket.Id = Guid.NewGuid().ToString();
         dbOrder.Orders.Add(mapper.Map<DbOrderBasket>(dbBasket));
         await context.SaveChangesAsync();
     }
