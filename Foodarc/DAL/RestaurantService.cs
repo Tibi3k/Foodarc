@@ -19,7 +19,7 @@ public class RestaurantService : IRestaurantService
         context = db;
     }
 
-    public async Task CreateRestaurant(CreateRestaurant restaurant, string id)
+    public async Task<Restaurant> CreateRestaurant(CreateRestaurant restaurant, string id)
     {
         Console.WriteLine("Creating restaurant");
         Console.WriteLine(restaurant);
@@ -50,17 +50,19 @@ public class RestaurantService : IRestaurantService
         await context.Restaurant.AddAsync(newRestaurant);
         Console.WriteLine(newRestaurant.Address);
         await context.SaveChangesAsync();
+        return mapper.Map<Restaurant>(newRestaurant);
     }
 
     public async Task<List<Restaurant>> GetAllRestaurants() {
         return context.Restaurant.Where(_ => true).Select(x => mapper.Map<Restaurant>(x)).ToList();  
     }
 
-    public async Task DeleteRestaurantAsync(string id)
+    public async Task<Restaurant?> DeleteRestaurantAsync(string id)
     {
         var restaurant = await context.Restaurant.FindAsync(id);
         context.Restaurant.Remove(restaurant);
         await context.SaveChangesAsync();
+        return mapper.Map<Restaurant>(restaurant);
     }
 
     public async Task<Restaurant?> GetRestaurantById(string id)

@@ -46,10 +46,10 @@
                             <div class="food-buttons">
                                 <button mat-raised-button color="primary" *ngIf="this.role != '' && this.role == 'Customer'" (click)="orderProduct(food)">Order</button>
                                 <button mat-raised-button color="" class="edit-button" 
-                                    *ngIf="this.role != '' && this.role == 'owner'"
+                                    *ngIf="this.role != '' && this.role == 'owner' && this.userId != '' &&this.userId == this.restaurantId"
                                     [routerLink]="['/editfood', food.id]"
                                     >Edit</button>
-                                <button mat-raised-button color="warn" *ngIf="this.role != '' && this.role == 'owner'" (click)="onDeleteFood(food.id)">Delete</button>
+                                <button mat-raised-button color="warn" *ngIf="this.role != '' && this.role == 'owner' && this.userId != '' &&this.userId == this.restaurantId" (click)="onDeleteFood(food.id)">Delete</button>
                             </div>
                         </div>
                     </div>

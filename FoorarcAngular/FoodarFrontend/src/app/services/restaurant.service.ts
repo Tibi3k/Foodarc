@@ -58,6 +58,26 @@ const UPDATE_RESTAURANT = gql`
         }
     }`
 
+const CREATE_RESTAURANT = gql`
+    mutation($createRestaurant: CreateRestaurantInput!){
+        CreateRestaurant(createRestaurant: $createRestaurant){
+            name,
+            description,
+            address,
+            city,
+            country,
+            zipCode,
+            imagePath
+        }
+    }`
+
+const DELETE_RESTAURANT = gql`
+    mutation {
+        DeleteRestaurant {
+            id
+        }
+    }`
+
 @Injectable({
     providedIn: 'root'
 })
@@ -69,7 +89,18 @@ export class RestaurantService {
     ){}
 
     CreateRestaurant(restaurant: CreateRestaurant){
-        return this.httpClient.post<string>(environment.backendUrl + 'api/restaurant', restaurant)
+        //return this.httpClient.post<string>(environment.backendUrl + 'api/restaurant', restaurant)
+        console.log('mutate')
+        return this.apollo.mutate({
+            mutation: CREATE_RESTAURANT, variables: {createRestaurant: restaurant},
+            awaitRefetchQueries: true,
+            refetchQueries: [
+                {
+                    query: GET_ALL_RESTAURANTS,
+                    
+                }
+            ]
+        })
     }
 
     GetRestaurantById(restId: string){
@@ -129,6 +160,15 @@ export class RestaurantService {
     }
     
     DeleteRestaurant(){
-        return this.httpClient.delete<string>(environment.backendUrl + 'api/restaurant')
+        //return this.httpClient.delete<string>(environment.backendUrl + 'api/restaurant')
+        return this.apollo.mutate({
+            mutation: DELETE_RESTAURANT,
+            awaitRefetchQueries: true,
+            refetchQueries: [
+                {
+                    query: GET_ALL_RESTAURANTS,
+                }
+            ]
+        })
     }
 }
