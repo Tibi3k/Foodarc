@@ -3,6 +3,7 @@ using Foodarc.Controllers.DTO;
 using Foodarc.DAL.EfDbContext;
 using Foodarc.Model;
 using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore;
 
 namespace Foodarc.DAL;
 
@@ -81,13 +82,18 @@ public class RestaurantService : IRestaurantService
         return mapper.Map<Food>(food);
     }
 
-    public async Task UpdateItemAsync(string id, Restaurant item)
+    public async Task<Restaurant?> UpdateItemAsync(string id, Restaurant item)
     {
         var restaurant = await context.Restaurant.FindAsync(id);
         if (restaurant == null)
-            return;
-        context.Restaurant.Update(mapper.Map<DbRestaurant>(item));
+            return null;
+        var orders = restaurant.Orders;
+        var foods = restaurant.AvailableFoods;
+        context.Entry(restaurant).CurrentValues.SetValues(mapper.Map<DbRestaurant>(item));
+        restaurant.AvailableFoods = foods;
+        restaurant.Orders = orders;
         await context.SaveChangesAsync();
+        return item;
     }
 
     public async Task UpdateFoodAsync(string id, Food food)
@@ -145,8 +151,10 @@ public class RestaurantService : IRestaurantService
         await context.SaveChangesAsync();
     }
 
-    public async Task<Order> GetOrderOfRestaurant(string id) {
+    public async Task<Order?> GetOrderOfRestaurant(string id) {
         var restaurant = await this.GetRestaurantById(id);
+        if(restaurant == null || restaurant.Orders == null || restaurant.Orders.Count == 0)
+            return null;
         return restaurant.Orders[0];
     }
 }

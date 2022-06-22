@@ -1,6 +1,10 @@
 using Foodarc.Config;
 using Foodarc.DAL;
 using Foodarc.DAL.EfDbContext;
+using Foodarc.GraphQL;
+using Foodarc.Model;
+using HotChocolate.AspNetCore;
+using HotChocolate.AspNetCore.Playground;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore;
@@ -29,7 +33,16 @@ builder.Services.AddDbContext<CosmosDbContext>(options =>
     );
 });
 
+builder.Services.AddGraphQLServer()
+    .AddAuthorization()
+    .AddType<FoodType>()
+    .AddType<RestaurantType>()
+    .AddQueryType<Query>()
+    .AddMutationType<Mutation>()
+    .AddResolver<FoodResolver>();
+
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddCors(options =>
 {
@@ -66,6 +79,11 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    //app.UsePlayground(new PlaygroundOptions
+    //{
+    //    QueryPath = "/graphql",
+    //    Path = "/playground"
+    //});
 }
 
 app.UseHttpsRedirection();
@@ -75,6 +93,7 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapGraphQL();
 app.MapControllers();
 
 app.Run();

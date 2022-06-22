@@ -29,6 +29,7 @@ import { BasketComponent } from './components/basket/basket.component';
 import { BasketService } from './services/basket.service';
 import { OrdersComponent } from './components/orders/orders.component';
 import { OrderService } from './services/order.service';
+import { GraphQLModule } from './graphql.module';
 
 @NgModule({
   declarations: [
@@ -55,7 +56,8 @@ import { OrderService } from './services/order.service';
     MatInputModule,
     MatButtonModule,
     MatExpansionModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    GraphQLModule
   ],
   providers: [
     AuthService,

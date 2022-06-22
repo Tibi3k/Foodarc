@@ -21,7 +21,7 @@ namespace Foodarc.DAL.EfDbContext {
             modelBuilder.Entity<DbBasket>()
                 .ToContainer("Baskets");
             modelBuilder.Entity<DbBasket>()
-                    .HasNoDiscriminator();
+                 .HasNoDiscriminator();
             modelBuilder.Entity<DbBasket>()
                 .HasPartitionKey(b => b.UserId);
             modelBuilder.Entity<DbBasket>()

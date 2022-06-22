@@ -26,10 +26,12 @@ export class RestaurantDetailsComponent implements OnInit {
   restaurant: Restaurant | null = null
   role = ''
   restaurantId: string = ''
+  userId: string = ''
   ngOnInit(): void {
     this.authService.getCurrentUserListener()
       .subscribe(user => {
         this.currentUser = user 
+        this.userId = user?.idTokenClaims?.oid ?? ''
         if(user != null){
           this.role = user?.idTokenClaims!['extension_Position'] as string ?? ''
         } else {

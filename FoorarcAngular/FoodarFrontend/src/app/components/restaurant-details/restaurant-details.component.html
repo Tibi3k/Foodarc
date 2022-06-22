@@ -17,10 +17,10 @@
                     </mat-card-subtitle>
                         {{this.restaurant?.description}}
                     <button mat-raised-button color="" class="edit-button" 
-                        *ngIf="this.role != '' && this.role == 'owner'"
+                        *ngIf="this.role != '' && this.role == 'owner' && this.userId != '' &&this.userId == this.restaurantId" 
                         [routerLink]="['/editrestaurant', this.restaurant.id]"
                         >Edit</button>
-                    <button mat-raised-button color="warn" *ngIf="this.role != '' && this.role == 'owner'" (click)="this.onDeleteRestaurant()">Delete</button>
+                    <button mat-raised-button color="warn" *ngIf="this.role != '' && this.role == 'owner' && this.userId != '' &&this.userId == this.restaurantId" (click)="this.onDeleteRestaurant()">Delete</button>
                 </div>
             </div>
             <div class="foods">

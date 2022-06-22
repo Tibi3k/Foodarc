@@ -10,10 +10,10 @@ public interface IRestaurantService
     public Task AddFoodToRestaurant(string id, CreateFood food);
     public Task<Restaurant?> GetRestaurantById(string id);
     public Task DeleteRestaurantAsync(string id);
-    public Task UpdateItemAsync(string id, Restaurant item);
+    public Task<Restaurant> UpdateItemAsync(string id, Restaurant item);
     public Task<Food?> GetFoodById(string restaurantId, string foodId);
     public Task UpdateFoodAsync(string id, Food food);
     public Task DeleteFoodFromRestaurant(string id, string foodId);
-    public Task<Order> GetOrderOfRestaurant(string id);
+    public Task<Order?> GetOrderOfRestaurant(string id);
     public Task AddOrderToRestaurant(string id, Basket order);
 }
